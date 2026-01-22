@@ -1,0 +1,11 @@
+# History Codex
+
+## Ràng buộc & yêu cầu hệ thống
+- Tách mã nguồn thành 2 thư mục: `ui/` (giao diện) và `be/` (backend FastAPI).
+- Backend sử dụng Python (FastAPI) và kết nối PostgreSQL để lưu dữ liệu sản phẩm, giỏ hàng và đơn hàng.
+- Có AI Chat Agent (LangChain hoặc LangGraph) hỗ trợ tìm sản phẩm, thêm/xóa/cập nhật số lượng trong cart, tính tổng tiền, hiển thị giỏ hàng và xác nhận đơn hàng.
+- Giao diện hiển thị danh sách sản phẩm theo nhóm: sen đá theo tag/loại (ví dụ: Haworthia, Echeveria…), chậu sen đá, đồ trang trí đi kèm, đất – phân bón – thuốc trị bệnh.
+- Mỗi sản phẩm có giá, mô tả ngắn và nút “thêm vào giỏ hàng”.
+- Hệ thống có shopping cart lưu trữ số lượng và tổng tiền.
+- Chatbot cho phép đặt hàng bằng ngôn ngữ tự nhiên, ví dụ: “Mua cho tôi 3 sen đá Haworthia và 1 chậu đất nung”.
+- Trải nghiệm mua sắm: vừa duyệt sản phẩm bằng UI, vừa tương tác với chatbot như người bán hàng thật.
