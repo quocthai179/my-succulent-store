@@ -1,19 +1,19 @@
 const API_BASE = "http://localhost:8000";
-const statusEl = document.getElementById("status");
-const productGroupsEl = document.getElementById("product-groups");
-const cartItemsEl = document.getElementById("cart-items");
-const cartTotalEl = document.getElementById("cart-total");
-const chatMessagesEl = document.getElementById("chat-messages");
-const chatForm = document.getElementById("chat-form");
-const chatInput = document.getElementById("chat-input");
+let statusEl;
+let productGridEl;
+let cartItemsEl;
+let cartTotalEl;
+let chatMessagesEl;
+let chatForm;
+let chatInput;
 
 const PRODUCT_IMAGE_BASE = "./image/succulent";
 const productImageMap = new Map([
-  [1, "haworthia-zebra.jpg"],
-  [2, "echeveria-blue.jpg"],
-  [3, "chau-dat-nung-mini.jpg"],
-  [4, "da-trang-tri-trang.jpg"],
-  [5, "dat-tron-sen-da.jpg"],
+  [1, "agavoides_lipstick.png"],
+  [2, "allegra.png"],
+  [3, "angelina.png"],
+  [4, "blue_sky.png"],
+  [5, "chroma.png"],
 ]);
 
 let cartId = Number(localStorage.getItem("cartId")) || null;
@@ -21,43 +21,83 @@ let cartId = Number(localStorage.getItem("cartId")) || null;
 const fallbackProducts = [
   {
     id: 1,
-    name: "Sen đá Haworthia Zebra",
-    category: "Haworthia",
-    description: "Lá sọc trắng nổi bật, phù hợp để bàn làm việc.",
-    price: 75000,
-    image: "haworthia-zebra.jpg",
+    name: "Sen đá agavoides lipstick",
+    category: "Sen đá",
+    description: "Dáng rosette nhỏ gọn, màu viền hồng nổi bật.",
+    price: 15000,
+    image: "agavoides_lipstick.png",
   },
   {
     id: 2,
-    name: "Sen đá Echeveria Blue",
-    category: "Echeveria",
-    description: "Tán lá xanh phấn, dáng hoa thị sang trọng.",
-    price: 89000,
-    image: "echeveria-blue.jpg",
+    name: "Sen đá allegra mini",
+    category: "Sen đá",
+    description: "Lá dày, tông xanh bạc, phù hợp bàn làm việc.",
+    price: 15000,
+    image: "allegra.png",
   },
   {
     id: 3,
-    name: "Chậu đất nung mini",
-    category: "Chậu sen đá",
-    description: "Chậu đất nung thoát nước tốt, kích thước 10cm.",
-    price: 32000,
-    image: "chau-dat-nung-mini.jpg",
+    name: "Sen đá angelina",
+    category: "Sen đá",
+    description: "Sắc vàng xanh tươi, dễ chăm sóc.",
+    price: 15000,
+    image: "angelina.png",
   },
   {
     id: 4,
-    name: "Đá trang trí trắng",
-    category: "Đồ trang trí",
-    description: "Gói 500g đá trang trí bề mặt, sạch và đẹp.",
+    name: "Sen đá blue sky",
+    category: "Sen đá",
+    description: "Hoa thị tròn đều, màu xanh mát mắt.",
     price: 25000,
-    image: "da-trang-tri-trang.jpg",
+    image: "blue_sky.png",
   },
   {
     id: 5,
-    name: "Đất trộn sen đá",
-    category: "Đất - phân bón - thuốc",
-    description: "Đất tơi xốp, giàu dinh dưỡng, thoát nước nhanh.",
-    price: 42000,
-    image: "dat-tron-sen-da.jpg",
+    name: "Sen đá chroma",
+    category: "Sen đá",
+    description: "Tông xanh pha hồng, viền lá nổi bật.",
+    price: 15000,
+    image: "chroma.png",
+  },
+  {
+    id: 6,
+    name: "Sen đá elegans",
+    category: "Sen đá",
+    description: "Lá dày, màu xanh bạc, dáng hoa thị.",
+    price: 15000,
+    image: "elegans.png",
+  },
+  {
+    id: 7,
+    name: "Sen đá major",
+    category: "Sen đá",
+    description: "Dáng gọn, màu xanh nhạt, dễ phối chậu.",
+    price: 15000,
+    image: "major.png",
+  },
+  {
+    id: 8,
+    name: "Sen đá perle von nurnberg",
+    category: "Sen đá",
+    description: "Sắc tím phấn, viền lá rõ nét.",
+    price: 15000,
+    image: "perle_von_nurnberg.png",
+  },
+  {
+    id: 9,
+    name: "Sen đá pink jelly bean",
+    category: "Sen đá",
+    description: "Lá tròn nhỏ, màu xanh hồng đáng yêu.",
+    price: 15000,
+    image: "pink_jelly_bean.png",
+  },
+  {
+    id: 10,
+    name: "Sen đá violet queen",
+    category: "Sen đá",
+    description: "Màu tím nhẹ, dáng rosette nổi bật.",
+    price: 15000,
+    image: "violet_queen.png",
   },
 ];
 
@@ -72,6 +112,9 @@ function formatCurrency(value) {
 }
 
 function setStatus(message) {
+  if (!statusEl) {
+    return;
+  }
   statusEl.textContent = message;
 }
 
@@ -98,45 +141,35 @@ async function fetchJson(url, options) {
 }
 
 function renderProducts(products) {
-  const groups = products.reduce((acc, product) => {
-    acc[product.category] ||= [];
-    acc[product.category].push(product);
-    return acc;
-  }, {});
+  if (!productGridEl) {
+    return;
+  }
 
-  productGroupsEl.innerHTML = "";
+  productGridEl.innerHTML = "";
 
-  Object.entries(groups).forEach(([category, items]) => {
-    const groupEl = document.createElement("div");
-    groupEl.className = "product-group";
-    groupEl.innerHTML = `<h3>${category}</h3>`;
-
-    const grid = document.createElement("div");
-    grid.className = "product-grid";
-
-    items.forEach((product) => {
-      const card = document.createElement("div");
-      card.className = "product-card";
-      const imageUrl = resolveProductImage(product);
-      card.innerHTML = `
-        <img class="product-image" src="${imageUrl}" alt="${product.name}" loading="lazy" />
-        <h4>${product.name}</h4>
-        <p class="muted">${product.description}</p>
-        <strong>${formatCurrency(product.price)}</strong>
-        <button data-product-id="${product.id}">Thêm vào giỏ hàng</button>
-      `;
-      card.querySelector("button").addEventListener("click", () => {
-        addToCart(product.id, 1);
-      });
-      grid.appendChild(card);
+  products.forEach((product) => {
+    const card = document.createElement("div");
+    card.className = "product-card";
+    const imageUrl = resolveProductImage(product);
+    card.innerHTML = `
+      <img class="product-image" src="${imageUrl}" alt="${product.name}" loading="lazy" />
+      <h4>${product.name}</h4>
+      <p class="muted">${product.description}</p>
+      <strong>${formatCurrency(product.price)}</strong>
+      <button data-product-id="${product.id}">THÊM VÀO GIỎ</button>
+    `;
+    card.querySelector("button").addEventListener("click", () => {
+      addToCart(product.id, 1);
     });
-
-    groupEl.appendChild(grid);
-    productGroupsEl.appendChild(groupEl);
+    productGridEl.appendChild(card);
   });
 }
 
 function renderCart(cart) {
+  if (!cartItemsEl || !cartTotalEl) {
+    return;
+  }
+
   cartItemsEl.innerHTML = "";
   if (!cart.items.length) {
     cartItemsEl.innerHTML = "<li class=\"muted\">Giỏ hàng đang trống.</li>";
@@ -237,6 +270,9 @@ async function removeCartItem(itemId) {
 }
 
 function appendMessage(role, text) {
+  if (!chatMessagesEl) {
+    return;
+  }
   const div = document.createElement("div");
   div.className = `chat-message ${role}`;
   div.textContent = text;
@@ -266,19 +302,61 @@ async function sendChat(message) {
   }
 }
 
-chatForm.addEventListener("submit", (event) => {
-  event.preventDefault();
-  const message = chatInput.value.trim();
-  if (!message) {
+async function loadPartials() {
+  const placeholders = document.querySelectorAll("[data-include]");
+  await Promise.all(
+    Array.from(placeholders).map(async (placeholder) => {
+      const file = placeholder.getAttribute("data-include");
+      if (!file) {
+        return;
+      }
+      const response = await fetch(file);
+      if (!response.ok) {
+        throw new Error(`Không thể tải ${file}`);
+      }
+      placeholder.innerHTML = await response.text();
+      placeholder.removeAttribute("data-include");
+    })
+  );
+}
+
+function cacheElements() {
+  statusEl = document.getElementById("status");
+  productGridEl = document.getElementById("product-grid");
+  cartItemsEl = document.getElementById("cart-items");
+  cartTotalEl = document.getElementById("cart-total");
+  chatMessagesEl = document.getElementById("chat-messages");
+  chatForm = document.getElementById("chat-form");
+  chatInput = document.getElementById("chat-input");
+}
+
+function bindChatForm() {
+  if (!chatForm || !chatInput) {
     return;
   }
-  chatInput.value = "";
-  sendChat(message);
-});
+  chatForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const message = chatInput.value.trim();
+    if (!message) {
+      return;
+    }
+    chatInput.value = "";
+    sendChat(message);
+  });
+}
 
-loadProducts();
-loadCart();
-appendMessage(
-  "bot",
-  "Xin chào! Tôi có thể giúp bạn chọn sen đá, phụ kiện và tạo đơn hàng."
-);
+async function initApp() {
+  await loadPartials();
+  cacheElements();
+  bindChatForm();
+  loadProducts();
+  loadCart();
+  appendMessage(
+    "bot",
+    "Xin chào! Tôi có thể giúp bạn chọn sen đá, phụ kiện và tạo đơn hàng."
+  );
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  initApp().catch((error) => console.warn(error));
+});
