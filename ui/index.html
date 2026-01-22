@@ -3,59 +3,15 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Succulent Store</title>
+    <title>Vườn Sen Đá</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <header class="hero">
-      <div>
-        <p class="badge">Succulent Store</p>
-        <h1>Thế giới sen đá & phụ kiện</h1>
-        <p>
-          Khám phá các dòng sen đá theo tag/loại, chậu và phụ kiện trang trí. Bạn có
-          thể đặt hàng qua chatbot thông minh hoặc thao tác trực tiếp trên giỏ hàng.
-        </p>
-      </div>
-      <div class="hero-card">
-        <h3>Trợ lý mua hàng</h3>
-        <p>Nhập yêu cầu, ví dụ: “Mua cho tôi 3 sen đá Haworthia và 1 chậu đất nung”.</p>
-      </div>
-    </header>
+    <div data-include="partials/header.html"></div>
 
-    <main class="layout">
-      <section class="catalog">
-        <div class="section-title">
-          <h2>Danh sách sản phẩm</h2>
-          <span id="status">Đang tải dữ liệu...</span>
-        </div>
-        <div id="product-groups" class="product-groups"></div>
-      </section>
-
-      <aside class="sidebar">
-        <section class="cart">
-          <h2>Giỏ hàng</h2>
-          <p class="muted">Quản lý số lượng và xem tổng tiền ngay tại đây.</p>
-          <ul id="cart-items" class="cart-items"></ul>
-          <div class="cart-total">
-            <span>Tổng cộng</span>
-            <strong id="cart-total">0₫</strong>
-          </div>
-        </section>
-
-        <section class="chat">
-          <h2>Chatbot đặt hàng</h2>
-          <div id="chat-messages" class="chat-messages"></div>
-          <form id="chat-form" class="chat-form">
-            <input
-              id="chat-input"
-              type="text"
-              placeholder="Nhập yêu cầu mua hàng..."
-              autocomplete="off"
-            />
-            <button type="submit">Gửi</button>
-          </form>
-        </section>
-      </aside>
+    <main class="page">
+      <div data-include="partials/featured.html"></div>
+      <div data-include="partials/assistant.html"></div>
     </main>
 
     <script src="app.js"></script>
