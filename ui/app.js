@@ -7,6 +7,15 @@ const chatMessagesEl = document.getElementById("chat-messages");
 const chatForm = document.getElementById("chat-form");
 const chatInput = document.getElementById("chat-input");
 
+const PRODUCT_IMAGE_BASE = "./image/succulent";
+const productImageMap = new Map([
+  [1, "haworthia-zebra.jpg"],
+  [2, "echeveria-blue.jpg"],
+  [3, "chau-dat-nung-mini.jpg"],
+  [4, "da-trang-tri-trang.jpg"],
+  [5, "dat-tron-sen-da.jpg"],
+]);
+
 let cartId = Number(localStorage.getItem("cartId")) || null;
 
 const fallbackProducts = [
@@ -16,6 +25,7 @@ const fallbackProducts = [
     category: "Haworthia",
     description: "Lá sọc trắng nổi bật, phù hợp để bàn làm việc.",
     price: 75000,
+    image: "haworthia-zebra.jpg",
   },
   {
     id: 2,
@@ -23,6 +33,7 @@ const fallbackProducts = [
     category: "Echeveria",
     description: "Tán lá xanh phấn, dáng hoa thị sang trọng.",
     price: 89000,
+    image: "echeveria-blue.jpg",
   },
   {
     id: 3,
@@ -30,6 +41,7 @@ const fallbackProducts = [
     category: "Chậu sen đá",
     description: "Chậu đất nung thoát nước tốt, kích thước 10cm.",
     price: 32000,
+    image: "chau-dat-nung-mini.jpg",
   },
   {
     id: 4,
@@ -37,6 +49,7 @@ const fallbackProducts = [
     category: "Đồ trang trí",
     description: "Gói 500g đá trang trí bề mặt, sạch và đẹp.",
     price: 25000,
+    image: "da-trang-tri-trang.jpg",
   },
   {
     id: 5,
@@ -44,6 +57,7 @@ const fallbackProducts = [
     category: "Đất - phân bón - thuốc",
     description: "Đất tơi xốp, giàu dinh dưỡng, thoát nước nhanh.",
     price: 42000,
+    image: "dat-tron-sen-da.jpg",
   },
 ];
 
@@ -59,6 +73,20 @@ function formatCurrency(value) {
 
 function setStatus(message) {
   statusEl.textContent = message;
+}
+
+function resolveProductImage(product) {
+  if (product.image) {
+    if (product.image.startsWith("http") || product.image.startsWith("/")) {
+      return product.image;
+    }
+    return `${PRODUCT_IMAGE_BASE}/${product.image}`;
+  }
+  const mappedImage = productImageMap.get(product.id);
+  if (mappedImage) {
+    return `${PRODUCT_IMAGE_BASE}/${mappedImage}`;
+  }
+  return `${PRODUCT_IMAGE_BASE}/placeholder.jpg`;
 }
 
 async function fetchJson(url, options) {
@@ -89,7 +117,9 @@ function renderProducts(products) {
     items.forEach((product) => {
       const card = document.createElement("div");
       card.className = "product-card";
+      const imageUrl = resolveProductImage(product);
       card.innerHTML = `
+        <img class="product-image" src="${imageUrl}" alt="${product.name}" loading="lazy" />
         <h4>${product.name}</h4>
         <p class="muted">${product.description}</p>
         <strong>${formatCurrency(product.price)}</strong>
