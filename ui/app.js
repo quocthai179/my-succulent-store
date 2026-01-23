@@ -6,6 +6,8 @@ let cartTotalEl;
 let chatMessagesEl;
 let chatForm;
 let chatInput;
+let categoryTabEls = [];
+let allProducts = [];
 
 const PRODUCT_IMAGE_BASE = "./image/succulent";
 const productImageMap = new Map([
@@ -147,6 +149,12 @@ function renderProducts(products) {
 
   productGridEl.innerHTML = "";
 
+  if (!products.length) {
+    productGridEl.innerHTML =
+      "<p class=\"muted\">Không tìm thấy sản phẩm phù hợp với danh mục đã chọn.</p>";
+    return;
+  }
+
   products.forEach((product) => {
     const card = document.createElement("div");
     card.className = "product-card";
@@ -201,15 +209,50 @@ function renderCart(cart) {
   cartTotalEl.textContent = formatCurrency(cart.total);
 }
 
+function getActiveCategories() {
+  if (!categoryTabEls.length) {
+    return [];
+  }
+  const activeTab = categoryTabEls.find((tab) =>
+    tab.classList.contains("active")
+  );
+  if (!activeTab) {
+    return [];
+  }
+  const categoryData = activeTab.dataset.categories || "";
+  return categoryData
+    .split(",")
+    .map((category) => category.trim())
+    .filter(Boolean);
+}
+
+function applyCategoryFilter(categories) {
+  if (!productGridEl) {
+    return;
+  }
+  const normalized = (categories || []).map((category) =>
+    category.toLowerCase()
+  );
+  const filtered =
+    normalized.length === 0
+      ? allProducts
+      : allProducts.filter((product) =>
+          normalized.includes(product.category.toLowerCase())
+        );
+  setStatus(`Tìm thấy ${filtered.length} sản phẩm`);
+  renderProducts(filtered);
+}
+
 async function loadProducts() {
   try {
     const products = await fetchJson(`${API_BASE}/products`);
-    setStatus(`Tìm thấy ${products.length} sản phẩm`);
-    renderProducts(products);
+    allProducts = products;
+    applyCategoryFilter(getActiveCategories());
   } catch (error) {
     console.warn(error);
     setStatus("Không thể kết nối backend, hiển thị dữ liệu mẫu.");
-    renderProducts(fallbackProducts);
+    allProducts = fallbackProducts;
+    applyCategoryFilter(getActiveCategories());
   }
 }
 
@@ -328,6 +371,9 @@ function cacheElements() {
   chatMessagesEl = document.getElementById("chat-messages");
   chatForm = document.getElementById("chat-form");
   chatInput = document.getElementById("chat-input");
+  categoryTabEls = Array.from(
+    document.querySelectorAll(".featured-tabs .tab")
+  );
 }
 
 function bindChatForm() {
@@ -345,10 +391,24 @@ function bindChatForm() {
   });
 }
 
+function bindCategoryTabs() {
+  if (!categoryTabEls.length) {
+    return;
+  }
+  categoryTabEls.forEach((tab) => {
+    tab.addEventListener("click", () => {
+      categoryTabEls.forEach((item) => item.classList.remove("active"));
+      tab.classList.add("active");
+      applyCategoryFilter(getActiveCategories());
+    });
+  });
+}
+
 async function initApp() {
   await loadPartials();
   cacheElements();
   bindChatForm();
+  bindCategoryTabs();
   loadProducts();
   loadCart();
   appendMessage(
